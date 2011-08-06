@@ -54,24 +54,31 @@ public class Canvas extends JPanel {
 				int xDraw = (int) Math.floor(xRate * x);
 				int yDraw = (int) Math.floor(yRate * y);
 
-				Integer resource = world.getResourceAt(new Coords(x, y));
-				Double mark = world.getMarkAt(new Coords(x, y));
-				if (resource > 0) {
-					int depth = 255 - (int) Math.min(resource, 255);
-					g.setColor(new Color(255, depth, depth));
+				if (!world.isAccessible(new Coords(x, y))) {
+					g.setColor(Color.BLACK);
 					g.fillRect(xDraw - width / 2, yDraw - height / 2, width,
 							height);
-				} else if (mark > 0) {
-					int depth = (int) Math.floor(255.0 * (1.0 - mark / World.MAX_MARK));
-					g.setColor(new Color(depth, depth, depth));
-					g.fillRect(xDraw - width / 2, yDraw - height / 2, width,
-							height);
+				} else {
+					Integer resource = world.getResourceAt(new Coords(x, y));
+					Double mark = world.getMarkAt(new Coords(x, y));
+					if (resource > 0) {
+						int depth = 255 - (int) Math.min(resource, 255);
+						g.setColor(new Color(depth, depth, 255));
+						g.fillRect(xDraw - width / 2, yDraw - height / 2,
+								width, height);
+					} else if (mark > 0) {
+						int depth = (int) Math.floor(255.0 * (1.0 - mark
+								/ World.MAX_MARK));
+						g.setColor(new Color(255, depth, depth));
+						g.fillRect(xDraw - width / 2, yDraw - height / 2,
+								width, height);
+					}
 				}
 			}
 		}
 
 		for (Anthill anthill : world.getAnthills()) {
-			g.setColor(Color.BLACK);
+			g.setColor(Color.GRAY);
 			Coords position = anthill.getPosition();
 			int xDraw = (int) Math.floor(xRate * position.getX());
 			int yDraw = (int) Math.floor(yRate * position.getY());
@@ -79,9 +86,9 @@ public class Canvas extends JPanel {
 
 			for (Ant ant : anthill.getAnts()) {
 				if (ant.isLookingForResource()) {
-					g.setColor(Color.BLUE);
-				} else {
 					g.setColor(Color.GREEN);
+				} else {
+					g.setColor(Color.BLUE);
 				}
 
 				position = ant.getCurrentPosition();

@@ -3,6 +3,8 @@ package sample.foodSearching;
 public class Main {
 	public static void main(String[] args) {
 		World world = new World();
+		world.addResources(300, new Coords(5, 15));
+		world.addResources(300, new Coords(40, 40));
 		world.createAnthill(new Coords(40, 5));
 		Canvas canvas = new Canvas();
 		canvas.setWorld(world);

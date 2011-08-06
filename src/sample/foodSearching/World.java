@@ -1,6 +1,7 @@
 package sample.foodSearching;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 	private final Double[][] marks;
 	private final Integer[][] resources;
 	private final Set<Anthill> anthills = new HashSet<Anthill>();
+	private final Set<Coords> notAccessiblePositions = new HashSet<Coords>();
 
 	public World() {
 		marks = new Double[50][50];
@@ -28,8 +30,33 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 			}
 		}
 
-		resources[10][10] = 500;
-		resources[40][40] = 500;
+		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
+				new Coords(10, 10), new Coords(14, 10))));
+		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
+				new Coords(14, 10), new Coords(14, 30))));
+	}
+
+	public void addResources(Integer amount, Coords position) {
+		if (!isAccessible(position)) {
+			throw new IllegalArgumentException(position + " not accessible.");
+		}
+
+		resources[position.getX()][position.getY()] += amount;
+	}
+
+	public boolean isAccessible(Coords position) {
+		if (position.getX() < 0 || position.getX() >= resources.length
+				|| position.getY() < 0
+				|| position.getY() >= resources[0].length) {
+			return false;
+		} else {
+			for (Coords test : notAccessiblePositions) {
+				if (test.equals(position)) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 	@Override
@@ -38,13 +65,11 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public boolean add(Coords coords) {
-				if (coords.getX() < 0 || coords.getX() >= resources.length
-						|| coords.getY() < 0
-						|| coords.getY() >= resources[0].length) {
+			public boolean add(Coords position) {
+				if (!isAccessible(position)) {
 					return false;
 				} else {
-					return super.add(coords);
+					return super.add(position);
 				}
 			}
 		};
@@ -91,13 +116,13 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 	public void takeResourceAt(Coords position) {
 		resources[position.getX()][position.getY()] -= 1;
 	}
-	
+
 	public Anthill createAnthill(Coords position) {
 		Anthill anthill = new Anthill(this, position);
 		anthills.add(anthill);
 		return anthill;
 	}
-	
+
 	public Anthill[] getAnthills() {
 		return anthills.toArray(new Anthill[0]);
 	}
