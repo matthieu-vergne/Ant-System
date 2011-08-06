@@ -1,13 +1,21 @@
 package org.antcolony.ant;
 
-import org.antcolony.world.IPosition;
+import org.antcolony.anthill.IAnthill;
+import org.antcolony.world.IMarkableWorld;
 
-public interface IAnt {
-	public IPosition getPreviousPosition();
+public interface IAnt<Mark, Position, World extends IMarkableWorld<Mark, Position, ?>, Anthill extends IAnthill<World, ?, Position>> {
+	public World getWorld();
 
-	public IPosition getCurrentPosition();
+	public Anthill getAnthill();
 
-	public IPosition goToNextPosition();
+	public Position getCurrentPosition();
+
+	public void goToNextPosition();
 
 	public void markCurrentPosition();
+
+	public boolean isLookingForResource();
+
+	public boolean isLookingForAnthill();
+
 }
