@@ -101,7 +101,7 @@ public class Canvas extends JPanel {
 
 			for (Ant ant : anthill.getAnts()) {
 				if (ant.isLookingForResource()) {
-					g.setColor(Color.GREEN);
+					g.setColor(Color.GRAY);
 				} else {
 					g.setColor(Color.BLUE);
 				}

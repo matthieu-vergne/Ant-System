@@ -58,11 +58,15 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 
 	private void initObstacles() {
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
-				new Coords(10, 10), new Coords(14, 10))));
+				new Coords(5, 10), new Coords(8, 10))));
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
-				new Coords(14, 10), new Coords(14, 30))));
+				new Coords(8, 10), new Coords(8, 20))));
+		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
+				new Coords(3, 20), new Coords(8, 20))));
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(20, 0), new Coords(20, 20))));
+		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
+				new Coords(30, 30), new Coords(50, 35))));
 
 		IRule<Double> notAccessibleRule = new IRule<Double>() {
 

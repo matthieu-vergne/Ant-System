@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.antcolony.ant.IAnt;
 
+// TODO review the mark following : when too far, stop in the middle
 public class Ant implements IAnt<Double, Coords, World, Anthill> {
 	public static final Double MARK_SENSIBILITY = 1.0;
 	public static final Double WAVE_SENSIBILITY = 1.0;
