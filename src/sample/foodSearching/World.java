@@ -16,7 +16,7 @@ import sample.foodSearching.cellularautomaton.WaveFactory;
 
 // TODO manage several types of mark and add a new anthill
 public class World implements IMarkableWorld<Double, Coords, Ant> {
-	public static final int MAX_MARK = 10;
+	public static final Double MAX_MARK = 2 * Ant.MARK_SENSIBILITY;
 	private Double[][] marks;
 	private Integer[][] resources;
 	private final Set<Anthill> anthills = new HashSet<Anthill>();
@@ -61,6 +61,8 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 				new Coords(10, 10), new Coords(14, 10))));
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(14, 10), new Coords(14, 30))));
+		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
+				new Coords(20, 0), new Coords(20, 20))));
 
 		IRule<Double> notAccessibleRule = new IRule<Double>() {
 
@@ -158,7 +160,7 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 	public void evaporateMarks() {
 		for (int x = 0; x < marks.length; x++) {
 			for (int y = 0; y < marks[x].length; y++) {
-				marks[x][y] = marks[x][y] * 0.99;
+				marks[x][y] = marks[x][y] * 0.999;
 				if (marks[x][y] < Ant.MARK_SENSIBILITY) {
 					marks[x][y] = 0.0;
 				}
