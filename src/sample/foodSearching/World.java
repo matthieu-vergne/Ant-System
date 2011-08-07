@@ -11,8 +11,7 @@ import org.cellularautomaton.CellularAutomaton;
 import org.cellularautomaton.cell.ICell;
 import org.cellularautomaton.rule.IRule;
 import org.cellularautomaton.space.SpaceBuilder;
-
-import sample.foodSearching.cellularautomaton.WaveFactory;
+import org.cellularautomaton.state.AbstractStateFactory;
 
 // TODO manage several types of mark and add a new anthill
 public class World implements IMarkableWorld<Double, Coords, Ant> {
@@ -32,7 +31,12 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 
 	private void initWaveField() {
 		SpaceBuilder<Double> builder = new SpaceBuilder<Double>();
-		builder.setStateFactory(new WaveFactory());
+		builder.setStateFactory(new AbstractStateFactory<Double>() {
+			@Override
+			public List<Double> getPossibleStates() {
+				return Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0);
+			}
+		});
 		builder.setRule(new IRule<Double>() {
 
 			@Override
