@@ -69,12 +69,16 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 		WeightenList<Coords> weightenList = new WeightenList<Coords>();
 		for (Coords coords : positions) {
 			Double weight = 1.0;
-			Double mark = getWorld().getMarkAt(coords).getMark(MARK_ID);
-			if (mark > 0) {
-				weight = 10 * suitDirection(coords);
+			Marker marker = getWorld().getMarkAt(coords);
+			if (marker.getMark(MARK_ID) > 0) {
+				weight = 10 * (1 + suitDirection(coords));
+			}
+			if (marker.getMark(Anthill.WAVE_ID) == 0) {
+				weight = 0.0;
 			}
 			weightenList.add(coords, weight);
 		}
+		weightenList.add(getCurrentPosition(), 1e-14);
 
 		Coords coords = weightenList.get(Math.random()
 				* weightenList.getTotalWeight());
@@ -96,21 +100,6 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 			suit += 1;
 		}
 		return suit;
-	}
-
-	private Coords getMoreOrLessNextPositionToAnthill() {
-		final Coords[] positions = getWorld().getAccessiblePositionsAround(
-				getCurrentPosition());
-		WeightenList<Coords> weightenList = new WeightenList<Coords>();
-		for (Coords coords : positions) {
-			Double weight = getWorld().getMarkAt(coords).getMark(
-					Anthill.WAVE_ID);
-			weightenList.add(coords, weight);
-		}
-		Coords coords = weightenList.get(Math.random()
-				* weightenList.getTotalWeight());
-		direction = Direction.getDirection(getCurrentPosition(), coords);
-		return coords;
 	}
 
 	private Coords getNextPositionToAnthill() {

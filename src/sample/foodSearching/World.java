@@ -77,7 +77,7 @@ public class World implements IMarkableWorld<Marker, Coords, Ant> {
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(8, 10), new Coords(8, 20))));
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
-				new Coords(3, 20), new Coords(8, 20))));
+				new Coords(5, 20), new Coords(8, 20))));
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(20, 0), new Coords(20, 20))));
 		 notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(

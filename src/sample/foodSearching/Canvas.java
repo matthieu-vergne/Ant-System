@@ -13,6 +13,8 @@ public class Canvas extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JFrame frame = null;
 	private World world = null;
+	private Boolean isMarkDisplayed = true;
+	private Boolean isWaveDisplayed = true;
 
 	public void initFrame() {
 		if (frame != null) {
@@ -26,7 +28,7 @@ public class Canvas extends JPanel {
 			}
 		};
 		frame.addWindowListener(wa);
-		frame.setPreferredSize(new Dimension(500, 500));
+		frame.setPreferredSize(new Dimension(467, 489));
 		frame.getContentPane().add(this);
 		frame.pack();
 		frame.setVisible(true);
@@ -68,19 +70,19 @@ public class Canvas extends JPanel {
 					Double mark = waveField[x][y].getMark(Ant.MARK_ID);
 					Double wave = waveField[x][y].getMark(Anthill.WAVE_ID);
 					if (resource > 0) {
-						int depth = 255 - (int) Math.min(resource, 255);
+						int depth = 255 - (int) Math.min(50 + 5 * resource, 255);
 						R = depth;
 						G = depth;
 						B = 255;
-					} else if (mark > 0) {
+					} else if (isMarkDisplayed && mark > 0) {
 						int depth = (int) Math.floor(255.0 * (1.0 - mark
 								/ World.MAX_MARK));
 						R = depth;
 						G = 255;
 						B = depth;
-					} else if (wave > 0) {
-						int depth = (int) Math.floor(255.0 * (1.0 - wave
-								/ Anthill.MAX_WAVE));
+					} else if (isWaveDisplayed && wave > 0) {
+						int depth = (int) Math.floor(255.0 * (1.0 - Math.pow(wave
+								/ Anthill.MAX_WAVE, 1.0/5.0)));
 						R = 255;
 						G = depth;
 						B = depth;
@@ -89,12 +91,13 @@ public class Canvas extends JPanel {
 				Color color = new Color(R, G, B);
 				g.setColor(color);
 				g.fillRect(xDraw - width / 2, yDraw - height / 2, width, height);
-				
-				if (world.isMarkLimit(Anthill.WAVE_ID, position)) {
+
+				if (isWaveDisplayed
+						&& world.isMarkLimit(Anthill.WAVE_ID, position)) {
 					g.setColor(Color.RED);
 					g.fillOval(xDraw - 1, yDraw - 1, 2, 2);
 				}
-				if (world.isMarkLimit(Ant.MARK_ID, position)) {
+				if (isMarkDisplayed && world.isMarkLimit(Ant.MARK_ID, position)) {
 					g.setColor(Color.GREEN);
 					g.fillOval(xDraw - 1, yDraw - 1, 2, 2);
 				}
