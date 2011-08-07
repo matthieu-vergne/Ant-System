@@ -6,7 +6,8 @@ import java.util.Set;
 import org.antcolony.anthill.IAnthill;
 
 public class Anthill implements IAnthill<World, Ant, Coords> {
-
+	public static final Double MAX_WAVE = 200.0;
+	public static final Double WAVE_EXPANSION = 3.0;
 	private final World world;
 	private final Coords position;
 	private final Set<Ant> ants = new HashSet<Ant>();

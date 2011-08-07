@@ -25,8 +25,9 @@ public class Main {
 					ant.goToNextPosition();
 				}
 			}
-			world.evaporateMarks();
+			world.evolve();
 			canvas.repaint();
+			System.out.println(world.getWaveField()[5][15]);
 		}
 	}
 }

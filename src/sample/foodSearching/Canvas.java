@@ -49,31 +49,46 @@ public class Canvas extends JPanel {
 		int width = (int) Math.floor(xRate);
 		int height = (int) Math.floor(yRate);
 
+		Double[][] waveField = world.getWaveField();
 		for (int x = 0; x < world.getWidth(); x++) {
 			for (int y = 0; y < world.getHeight(); y++) {
 				int xDraw = (int) Math.floor(xRate * x);
 				int yDraw = (int) Math.floor(yRate * y);
 
-				if (!world.isAccessible(new Coords(x, y))) {
-					g.setColor(Color.BLACK);
-					g.fillRect(xDraw - width / 2, yDraw - height / 2, width,
-							height);
+				int R = 255;
+				int G = 255;
+				int B = 255;
+				Coords position = new Coords(x, y);
+				if (!world.isAccessible(position)) {
+					R = 0;
+					G = 0;
+					B = 0;
 				} else {
-					Integer resource = world.getResourceAt(new Coords(x, y));
-					Double mark = world.getMarkAt(new Coords(x, y));
+					Integer resource = world.getResourceAt(position);
+					Double mark = world.getMarkAt(position);
+					Double wave = waveField[x][y];
 					if (resource > 0) {
 						int depth = 255 - (int) Math.min(resource, 255);
-						g.setColor(new Color(depth, depth, 255));
-						g.fillRect(xDraw - width / 2, yDraw - height / 2,
-								width, height);
+						R = depth;
+						G = depth;
+						B = 255;
 					} else if (mark > 0) {
 						int depth = (int) Math.floor(255.0 * (1.0 - mark
 								/ World.MAX_MARK));
-						g.setColor(new Color(255, depth, depth));
-						g.fillRect(xDraw - width / 2, yDraw - height / 2,
-								width, height);
+						R = depth;
+						G = 255;
+						B = depth;
+					} else if (wave > 0) {
+						int depth = (int) Math.floor(255.0 * (1.0 - wave
+								/ Anthill.MAX_WAVE));
+						R = 255;
+						G = depth;
+						B = depth;
 					}
 				}
+				Color color = new Color(R, G, B);
+				g.setColor(color);
+				g.fillRect(xDraw - width / 2, yDraw - height / 2, width, height);
 			}
 		}
 
