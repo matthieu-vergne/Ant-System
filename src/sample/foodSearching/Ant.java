@@ -9,8 +9,11 @@ import java.util.Set;
 import org.antcolony.ant.IAnt;
 
 // TODO review the mark following : when too far, stop in the middle
-public class Ant implements IAnt<Double, Coords, World, Anthill> {
+public class Ant implements IAnt<Marker, Coords, World, Anthill> {
+	public static final String MARK_ID = "mark";
+	public static final Double MARK_EXPANSION = 1.0;
 	public static final Double MARK_SENSIBILITY = 1.0;
+	public static final double MARK_AMOUNT = 100 * MARK_SENSIBILITY;
 	public static final Double WAVE_SENSIBILITY = 1.0;
 	private final Anthill anthill;
 	private Coords currentPosition;
@@ -64,10 +67,11 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 		Coords[] positions = getWorld().getAccessiblePositionsAround(
 				currentPosition);
 		positions = filterTooFarPositions(positions);
-		
+
 		Double strongestMark = getStrongestMarkIn(positions);
 		if (strongestMark > MARK_SENSIBILITY) {
-			positions = filterDifferentlyMarkedPositions(positions, strongestMark);
+			positions = filterDifferentlyMarkedPositions(positions,
+					strongestMark);
 
 			// consider only the farest position from the anthill
 			final Coords anthillPosition = getAnthill().getPosition();
@@ -84,18 +88,18 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 			// take a random position
 			if (positions.length > 0) {
 				return positions[new Random().nextInt(positions.length)];
-			}
-			else {
+			} else {
 				return currentPosition;
 			}
 		}
 	}
 
-	private Coords[] filterDifferentlyMarkedPositions(Coords[] positions, Double strongestMark) {
+	private Coords[] filterDifferentlyMarkedPositions(Coords[] positions,
+			Double strongestMark) {
 		Set<Coords> strongestPositions = new HashSet<Coords>();
 		for (Coords position : positions) {
 			if (isSimilarValue(MARK_SENSIBILITY, strongestMark, getWorld()
-					.getMarkAt(position))) {
+					.getMarkAt(position).getMark(MARK_ID))) {
 				strongestPositions.add(position);
 			}
 		}
@@ -106,7 +110,7 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 	private Coords[] filterTooFarPositions(Coords[] positions) {
 		Set<Coords> managedPositions = new HashSet<Coords>();
 		for (Coords position : positions) {
-			if (getWorld().getWaveAt(position).getMark(Anthill.WAVE_ID) > WAVE_SENSIBILITY) {
+			if (getWorld().getMarkAt(position).getMark(Anthill.WAVE_ID) > WAVE_SENSIBILITY) {
 				managedPositions.add(position);
 			}
 		}
@@ -118,7 +122,7 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 		Double strongestMark = 0.0;
 		for (Coords position : positions) {
 			strongestMark = Math.max(strongestMark,
-					getWorld().getMarkAt(position));
+					getWorld().getMarkAt(position).getMark(MARK_ID));
 		}
 		return strongestMark;
 	}
@@ -143,8 +147,8 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 		Arrays.sort(positions, new Comparator<Coords>() {
 			@Override
 			public int compare(Coords c1, Coords c2) {
-				Double w1 = getWorld().getWaveAt(c1).getMark(Anthill.WAVE_ID);
-				Double w2 = getWorld().getWaveAt(c2).getMark(Anthill.WAVE_ID);
+				Double w1 = getWorld().getMarkAt(c1).getMark(Anthill.WAVE_ID);
+				Double w2 = getWorld().getMarkAt(c2).getMark(Anthill.WAVE_ID);
 				return w2.compareTo(w1);
 			}
 		});
@@ -153,7 +157,9 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 
 	@Override
 	public void markCurrentPosition() {
-		getWorld().addMark(2 * MARK_SENSIBILITY, getCurrentPosition());
+		Marker mark = new Marker();
+		mark.addMark(MARK_ID, MARK_AMOUNT);
+		getWorld().addMark(mark, getCurrentPosition());
 	}
 
 	@Override

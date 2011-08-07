@@ -65,7 +65,7 @@ public class Canvas extends JPanel {
 					B = 0;
 				} else {
 					Integer resource = world.getResourceAt(position);
-					Double mark = world.getMarkAt(position);
+					Double mark = waveField[x][y].getMark(Ant.MARK_ID);
 					Double wave = waveField[x][y].getMark(Anthill.WAVE_ID);
 					if (resource > 0) {
 						int depth = 255 - (int) Math.min(resource, 255);

@@ -43,7 +43,11 @@ public class Coords {
 			start = closestTo(end, new Coords(start.getX() + 1, start.getY()),
 					new Coords(start.getX() - 1, start.getY()), new Coords(
 							start.getX(), start.getY() + 1),
-					new Coords(start.getX(), start.getY() - 1));
+					new Coords(start.getX(), start.getY() - 1), new Coords(
+							start.getX() + 1, start.getY() + 1), new Coords(
+							start.getX() - 1, start.getY() - 1), new Coords(
+							start.getX() - 1, start.getY() + 1), new Coords(
+							start.getX() + 1, start.getY() - 1));
 		}
 		positions.add(end);
 		return positions.toArray(new Coords[0]);

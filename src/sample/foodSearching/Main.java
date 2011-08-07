@@ -11,12 +11,12 @@ public class Main {
 		canvas.initFrame();
 
 		while (true) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-			
+			// try {
+			// Thread.sleep(10);
+			// } catch (InterruptedException e) {
+			// throw new RuntimeException(e);
+			// }
+
 			for (Anthill anthill : world.getAnthills()) {
 				if (anthill.getAntCounter() < 50) {
 					anthill.createAnt();
@@ -27,7 +27,12 @@ public class Main {
 			}
 			world.evolve();
 			canvas.repaint();
-			System.out.println(world.getWaveField()[5][15].getMark(Anthill.WAVE_ID));
+//			System.out.println(world.getMarkAt(new Coords(5, 15)).getMark(
+//					Anthill.WAVE_ID));
+			Coords position = world.getAnthills()[0].getPosition();
+			System.out.println(world.getMarkAt(
+					new Coords(position.getX(), position.getY() + 1)).getMark(
+					Ant.MARK_ID));
 		}
 	}
 }
