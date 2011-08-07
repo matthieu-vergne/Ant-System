@@ -8,9 +8,9 @@ import org.antcolony.ant.IAnt;
 // TODO review the mark following : when too far, stop in the middle
 public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 	public static final String MARK_ID = "mark";
-	public static final Double MARK_EXPANSION = 0.05;
+	public static final Double MARK_EXPANSION = 0.01;
 	public static final Double MARK_SENSIBILITY = 1.0;
-	public static final double MARK_AMOUNT = 10 * MARK_SENSIBILITY;
+	public static final double MARK_AMOUNT = 5 * MARK_SENSIBILITY;
 	public static final Double WAVE_SENSIBILITY = 1.0;
 	private final Anthill anthill;
 	private Coords currentPosition;
@@ -55,7 +55,9 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 			}
 		} else if (isLookingForAnthill()) {
 			currentPosition = getNextPositionToAnthill();
-			if (getAnthillDistance() == 0) {
+			// currentPosition = getMoreOrLessNextPositionToAnthill();
+			if (getAnthill().getPosition().equals(getCurrentPosition())) {
+				getAnthill().putResources();
 				hasResource = false;
 			}
 		}
@@ -69,7 +71,7 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 			Double weight = 1.0;
 			Double mark = getWorld().getMarkAt(coords).getMark(MARK_ID);
 			if (mark > 0) {
-				weight = mark * suitDirection(coords);
+				weight = 10 * suitDirection(coords);
 			}
 			weightenList.add(coords, weight);
 		}
@@ -94,6 +96,21 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 			suit += 1;
 		}
 		return suit;
+	}
+
+	private Coords getMoreOrLessNextPositionToAnthill() {
+		final Coords[] positions = getWorld().getAccessiblePositionsAround(
+				getCurrentPosition());
+		WeightenList<Coords> weightenList = new WeightenList<Coords>();
+		for (Coords coords : positions) {
+			Double weight = getWorld().getMarkAt(coords).getMark(
+					Anthill.WAVE_ID);
+			weightenList.add(coords, weight);
+		}
+		Coords coords = weightenList.get(Math.random()
+				* weightenList.getTotalWeight());
+		direction = Direction.getDirection(getCurrentPosition(), coords);
+		return coords;
 	}
 
 	private Coords getNextPositionToAnthill() {

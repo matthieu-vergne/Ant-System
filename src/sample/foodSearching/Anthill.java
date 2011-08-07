@@ -12,6 +12,7 @@ public class Anthill implements IAnthill<World, Ant, Coords> {
 	private final World world;
 	private final Coords position;
 	private final Set<Ant> ants = new HashSet<Ant>();
+	private Integer resources = 0;
 
 	public Anthill(World world, Coords position) {
 		this.world = world;
@@ -49,5 +50,10 @@ public class Anthill implements IAnthill<World, Ant, Coords> {
 
 	public int getAntCounter() {
 		return ants.size();
+	}
+	
+	public void putResources() {
+		resources++;
+		System.out.println(resources);
 	}
 }

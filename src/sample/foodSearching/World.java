@@ -16,7 +16,7 @@ import org.cellularautomaton.state.AbstractStateFactory;
 
 // TODO manage several types of mark and add a new anthill
 public class World implements IMarkableWorld<Marker, Coords, Ant> {
-	public static final Double MAX_MARK = 10 * Ant.MARK_AMOUNT;
+	public static final Double MAX_MARK = 3 * Ant.MARK_AMOUNT;
 	private Integer[][] resources;
 	private final Set<Anthill> anthills = new HashSet<Anthill>();
 	private final Set<Coords> notAccessiblePositions = new HashSet<Coords>();
