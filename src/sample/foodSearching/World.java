@@ -44,16 +44,22 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 			@Override
 			public Marker calculateNextStateOf(ICell<Marker> cell) {
 				Marker state = cell.getCurrentState();
-				String id = Anthill.WAVE_ID;
-				Double intensity = 0.0;
 				for (ICell<Marker> neighbour : cell.getAllCellsAround()) {
-					Double environment = neighbour.getCurrentState().getMark(id);
-					intensity += Math.pow(environment, Anthill.WAVE_EXPANSION);
+					for (String id : neighbour.getCurrentState().getIDs()) {
+						state.addMark(id, 0.0);
+					}
 				}
-				intensity /= 4;
-				intensity = Math.pow(intensity,
-						1.0 / Anthill.WAVE_EXPANSION);
-				state.addMark(id, intensity - state.getMark(id));
+				for (String id : state.getIDs()) {
+					Double intensity = 0.0;
+					for (ICell<Marker> neighbour : cell.getAllCellsAround()) {
+						Double environment = neighbour.getCurrentState()
+								.getMark(id);
+						intensity += Math.pow(environment, Anthill.WAVE_EXPANSION);
+					}
+					intensity /= 4;
+					intensity = Math.pow(intensity, 1.0 / Anthill.WAVE_EXPANSION);
+					state.addMark(id, intensity - state.getMark(id));
+				}
 				return state;
 			}
 		});
@@ -78,19 +84,13 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(30, 30), new Coords(50, 35))));
 
-		notAccessibleRule = new IRule<Marker>() {
-
-			@Override
-			public Marker calculateNextStateOf(ICell<Marker> cell) {
-				return new Marker();
-			}
-		};
 		for (ICell<Marker> cell : waveField.getSpace().getAllCells()) {
 			for (Coords position : notAccessiblePositions) {
 				int[] coords = cell.getCoords().getAll();
 				if (position.getX() == coords[0]
 						&& position.getY() == coords[1]) {
-					cell.setRule(notAccessibleRule);
+					cell.setRule(new RuleFactory<Marker>().getStaticRuleInstance());
+					cell.setCurrentState(new Marker());
 				}
 			}
 		}
