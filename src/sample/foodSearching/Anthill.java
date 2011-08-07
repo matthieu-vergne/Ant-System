@@ -7,8 +7,8 @@ import org.antcolony.anthill.IAnthill;
 
 public class Anthill implements IAnthill<World, Ant, Coords> {
 	public static final String WAVE_ID = "wave";
-	public static final Double MAX_WAVE = 200.0;
-	public static final Double WAVE_EXPANSION = 5.0;
+	public static final Double MAX_WAVE = 1e8;
+	public static final Double WAVE_EXPANSION = 1.0;
 	private final World world;
 	private final Coords position;
 	private final Set<Ant> ants = new HashSet<Ant>();

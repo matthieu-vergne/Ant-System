@@ -89,6 +89,15 @@ public class Canvas extends JPanel {
 				Color color = new Color(R, G, B);
 				g.setColor(color);
 				g.fillRect(xDraw - width / 2, yDraw - height / 2, width, height);
+				
+				if (world.isMarkLimit(Anthill.WAVE_ID, position)) {
+					g.setColor(Color.RED);
+					g.fillOval(xDraw - 1, yDraw - 1, 2, 2);
+				}
+				if (world.isMarkLimit(Ant.MARK_ID, position)) {
+					g.setColor(Color.GREEN);
+					g.fillOval(xDraw - 1, yDraw - 1, 2, 2);
+				}
 			}
 		}
 

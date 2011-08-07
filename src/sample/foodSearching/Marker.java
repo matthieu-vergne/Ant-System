@@ -19,6 +19,7 @@ public class Marker {
 		expansionPower.put(Ant.MARK_ID, Ant.MARK_EXPANSION);
 
 		minMark.put(Anthill.WAVE_ID, Ant.WAVE_SENSIBILITY);
+		maxMark.put(Anthill.WAVE_ID, Anthill.MAX_WAVE);
 		expansionPower.put(Anthill.WAVE_ID, Anthill.WAVE_EXPANSION);
 	}
 

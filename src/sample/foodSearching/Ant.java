@@ -11,9 +11,9 @@ import org.antcolony.ant.IAnt;
 // TODO review the mark following : when too far, stop in the middle
 public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 	public static final String MARK_ID = "mark";
-	public static final Double MARK_EXPANSION = 1.0;
+	public static final Double MARK_EXPANSION = 0.05;
 	public static final Double MARK_SENSIBILITY = 1.0;
-	public static final double MARK_AMOUNT = 100 * MARK_SENSIBILITY;
+	public static final double MARK_AMOUNT = 50 * MARK_SENSIBILITY;
 	public static final Double WAVE_SENSIBILITY = 1.0;
 	private final Anthill anthill;
 	private Coords currentPosition;
@@ -46,6 +46,7 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 
 	@Override
 	public void goToNextPosition() {
+		markCurrentPosition();
 		if (isLookingForResource()) {
 			currentPosition = getNextInterestingPositionToFood();
 			Integer availableResource = getWorld().getResourceAt(
@@ -55,7 +56,6 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 				hasResource = true;
 			}
 		} else if (isLookingForAnthill()) {
-			markCurrentPosition();
 			currentPosition = getNextPositionToAnthill();
 			if (getAnthillDistance() == 0) {
 				hasResource = false;
@@ -64,6 +64,42 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 	}
 
 	private Coords getNextInterestingPositionToFood() {
+		//return followStrongestMark();
+		return followMoreOrLessStrongestMark();
+	}
+
+	private Coords followMoreOrLessStrongestMark() {
+		Coords[] positions = getWorld().getAccessiblePositionsAround(
+				currentPosition);
+		WeightenList<Coords> weightenList = new WeightenList<Coords>();
+
+		{
+			for (Coords coords : positions) {
+				Double mark = Anthill.MAX_WAVE
+						- getWorld().getMarkAt(coords).getMark(Anthill.WAVE_ID);
+				mark++;
+				mark /= Anthill.MAX_WAVE;
+				weightenList.add(coords, mark);
+			}
+		}
+
+		{
+			for (Coords coords : positions) {
+				Double mark = 1 + getWorld().getMarkAt(coords).getMark(
+						Ant.MARK_ID);
+				if (mark > 1) {
+					Double weight = weightenList.getWeight(coords);
+					mark /= Math.pow(weight, 10);
+					weightenList.add(coords, mark);
+				}
+				System.out.println(weightenList.getWeight(coords));
+			}
+		}
+
+		return weightenList.get(Math.random() * weightenList.getTotalWeight());
+	}
+
+	private Coords followStrongestMark() {
 		Coords[] positions = getWorld().getAccessiblePositionsAround(
 				currentPosition);
 		positions = filterTooFarPositions(positions);
@@ -74,13 +110,12 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 					strongestMark);
 
 			// consider only the farest position from the anthill
-			final Coords anthillPosition = getAnthill().getPosition();
 			Arrays.sort(positions, new Comparator<Coords>() {
 				@Override
 				public int compare(Coords c1, Coords c2) {
-					Double d1 = Coords.distanceBetween(anthillPosition, c1);
-					Double d2 = Coords.distanceBetween(anthillPosition, c2);
-					return d2.compareTo(d1);
+					Double d1 = getWorld().getMarkAt(c1).getMark(MARK_ID);
+					Double d2 = getWorld().getMarkAt(c2).getMark(MARK_ID);
+					return d1.compareTo(d2);
 				}
 			});
 			return positions[0];
@@ -158,7 +193,12 @@ public class Ant implements IAnt<Marker, Coords, World, Anthill> {
 	@Override
 	public void markCurrentPosition() {
 		Marker mark = new Marker();
-		mark.addMark(MARK_ID, MARK_AMOUNT);
+		if (hasResource) {
+			mark.addMark(MARK_ID, MARK_AMOUNT);
+		} else {
+			// mark.addMark(Anthill.WAVE_ID, Anthill.MAX_WAVE
+			// / getAnthill().getAntCounter()/10);
+		}
 		getWorld().addMark(mark, getCurrentPosition());
 	}
 

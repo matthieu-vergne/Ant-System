@@ -16,7 +16,7 @@ import org.cellularautomaton.state.AbstractStateFactory;
 
 // TODO manage several types of mark and add a new anthill
 public class World implements IMarkableWorld<Marker, Coords, Ant> {
-	public static final Double MAX_MARK = 1 * Ant.MARK_AMOUNT;
+	public static final Double MAX_MARK = 3 * Ant.MARK_AMOUNT;
 	private Integer[][] resources;
 	private final Set<Anthill> anthills = new HashSet<Anthill>();
 	private final Set<Coords> notAccessiblePositions = new HashSet<Coords>();
@@ -49,21 +49,14 @@ public class World implements IMarkableWorld<Marker, Coords, Ant> {
 				for (String id : state.getIDs()) {
 					Double expansionPower = Marker.getExpansionPowerFor(id);
 					if (expansionPower > 0) {
-						Double intensity = Math.pow(state.getMark(id),
-								expansionPower);
+						Double intensity = (1 - expansionPower)
+								* state.getMark(id);
 						for (ICell<Marker> neighbour : cell.getAllCellsAround()) {
 							Double environment = neighbour.getCurrentState()
 									.getMark(id);
-							intensity += Math.pow(environment, expansionPower);
+							intensity += expansionPower * environment / 4;
 						}
-						intensity /= 5;
-						intensity = Math.pow(intensity, 1.0 / expansionPower);
 						state.addMark(id, intensity - state.getMark(id));
-					}
-
-					if (id.equals(Ant.MARK_ID)) {
-						// Double amount = state.getMark(id) * -0.005;
-						// state.addMark(id, amount);
 					}
 				}
 				return state;
@@ -87,8 +80,8 @@ public class World implements IMarkableWorld<Marker, Coords, Ant> {
 				new Coords(3, 20), new Coords(8, 20))));
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(20, 0), new Coords(20, 20))));
-		// notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
-		// new Coords(30, 30), new Coords(50, 35))));
+		 notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
+		 new Coords(30, 30), new Coords(50, 35))));
 
 		for (ICell<Marker> cell : waveField.getSpace().getAllCells()) {
 			for (Coords position : notAccessiblePositions) {
@@ -223,5 +216,18 @@ public class World implements IMarkableWorld<Marker, Coords, Ant> {
 			field[coords[0]][coords[1]] = cell.getCurrentState();
 		}
 		return field;
+	}
+
+	public Boolean isMarkLimit(String id, Coords position) {
+		Double mark = getMarkAt(position).getMark(id);
+		if (mark == 0.0) {
+			for (Coords neighbour : getAccessiblePositionsAround(position)) {
+				Double mark2 = getMarkAt(neighbour).getMark(id);
+				if (mark2 > 0.0) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
