@@ -49,7 +49,7 @@ public class Canvas extends JPanel {
 		int width = (int) Math.floor(xRate);
 		int height = (int) Math.floor(yRate);
 
-		Double[][] waveField = world.getWaveField();
+		Marker[][] waveField = world.getWaveField();
 		for (int x = 0; x < world.getWidth(); x++) {
 			for (int y = 0; y < world.getHeight(); y++) {
 				int xDraw = (int) Math.floor(xRate * x);
@@ -66,7 +66,7 @@ public class Canvas extends JPanel {
 				} else {
 					Integer resource = world.getResourceAt(position);
 					Double mark = world.getMarkAt(position);
-					Double wave = waveField[x][y];
+					Double wave = waveField[x][y].getMark(Anthill.WAVE_ID);
 					if (resource > 0) {
 						int depth = 255 - (int) Math.min(resource, 255);
 						R = depth;

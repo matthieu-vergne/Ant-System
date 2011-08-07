@@ -27,7 +27,7 @@ public class Main {
 			}
 			world.evolve();
 			canvas.repaint();
-			System.out.println(world.getWaveField()[5][15]);
+			System.out.println(world.getWaveField()[5][15].getMark(Anthill.WAVE_ID));
 		}
 	}
 }

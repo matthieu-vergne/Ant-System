@@ -10,6 +10,7 @@ import org.antcolony.world.IMarkableWorld;
 import org.cellularautomaton.CellularAutomaton;
 import org.cellularautomaton.cell.ICell;
 import org.cellularautomaton.rule.IRule;
+import org.cellularautomaton.rule.RuleFactory;
 import org.cellularautomaton.space.SpaceBuilder;
 import org.cellularautomaton.state.AbstractStateFactory;
 
@@ -20,7 +21,8 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 	private Integer[][] resources;
 	private final Set<Anthill> anthills = new HashSet<Anthill>();
 	private final Set<Coords> notAccessiblePositions = new HashSet<Coords>();
-	private CellularAutomaton<Double> waveField;
+	private CellularAutomaton<Marker> waveField;
+	private IRule<Marker> notAccessibleRule;
 
 	public World() {
 		initWaveField();
@@ -30,25 +32,29 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 	}
 
 	private void initWaveField() {
-		SpaceBuilder<Double> builder = new SpaceBuilder<Double>();
-		builder.setStateFactory(new AbstractStateFactory<Double>() {
+		SpaceBuilder<Marker> builder = new SpaceBuilder<Marker>();
+		builder.setStateFactory(new AbstractStateFactory<Marker>() {
 			@Override
-			public List<Double> getPossibleStates() {
-				return Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0);
+			public List<Marker> getPossibleStates() {
+				return Arrays.asList(new Marker());
 			}
 		});
-		builder.setRule(new IRule<Double>() {
+		builder.setRule(new IRule<Marker>() {
 
 			@Override
-			public Double calculateNextStateOf(ICell<Double> cell) {
+			public Marker calculateNextStateOf(ICell<Marker> cell) {
+				Marker state = cell.getCurrentState();
+				String id = Anthill.WAVE_ID;
 				Double intensity = 0.0;
-				for (ICell<Double> neighbour : cell.getAllCellsAround()) {
-					Double state = neighbour.getCurrentState();
-					intensity += Math.pow(state, Anthill.WAVE_EXPANSION);
+				for (ICell<Marker> neighbour : cell.getAllCellsAround()) {
+					Double environment = neighbour.getCurrentState().getMark(id);
+					intensity += Math.pow(environment, Anthill.WAVE_EXPANSION);
 				}
 				intensity /= 4;
-				intensity = Math.pow(intensity, 1.0 / Anthill.WAVE_EXPANSION);
-				return intensity;
+				intensity = Math.pow(intensity,
+						1.0 / Anthill.WAVE_EXPANSION);
+				state.addMark(id, intensity - state.getMark(id));
+				return state;
 			}
 		});
 		builder.createNewSpace();
@@ -56,7 +62,7 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 		builder.addDimension(getHeight(), false);
 		builder.finalizeSpace();
 
-		waveField = new CellularAutomaton<Double>(builder.getSpaceOfCell());
+		waveField = new CellularAutomaton<Marker>(builder.getSpaceOfCell());
 		waveField.setDependencyConsidered(false);
 	}
 
@@ -72,14 +78,14 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 		notAccessiblePositions.addAll(Arrays.asList(Coords.generateLine(
 				new Coords(30, 30), new Coords(50, 35))));
 
-		IRule<Double> notAccessibleRule = new IRule<Double>() {
+		notAccessibleRule = new IRule<Marker>() {
 
 			@Override
-			public Double calculateNextStateOf(ICell<Double> cell) {
-				return 0.0;
+			public Marker calculateNextStateOf(ICell<Marker> cell) {
+				return new Marker();
 			}
 		};
-		for (ICell<Double> cell : waveField.getSpace().getAllCells()) {
+		for (ICell<Marker> cell : waveField.getSpace().getAllCells()) {
 			for (Coords position : notAccessiblePositions) {
 				int[] coords = cell.getCoords().getAll();
 				if (position.getX() == coords[0]
@@ -164,6 +170,12 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 		marks[x][y] = Math.min(marks[x][y] + mark, MAX_MARK);
 	}
 
+	private ICell<Marker> getWaveCellAt(Coords position) {
+		ICell<Marker> cell = waveField.getSpace().getOrigin()
+				.getRelativeCell(position.getX(), position.getY());
+		return cell;
+	}
+
 	@Override
 	public void evaporateMarks() {
 		for (int x = 0; x < marks.length; x++) {
@@ -200,15 +212,11 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 	public Anthill createAnthill(Coords position) {
 		Anthill anthill = new Anthill(this, position);
 		anthills.add(anthill);
-		ICell<Double> cell = waveField.getSpace().getOrigin()
-				.getRelativeCell(position.getX(), position.getY());
-		cell.setRule(new IRule<Double>() {
-
-			@Override
-			public Double calculateNextStateOf(ICell<Double> cell) {
-				return Anthill.MAX_WAVE;
-			}
-		});
+		ICell<Marker> cell = getWaveCellAt(position);
+		cell.setRule(new RuleFactory<Marker>().getStaticRuleInstance());
+		Marker state = new Marker();
+		state.addMark(Anthill.WAVE_ID, Anthill.MAX_WAVE);
+		cell.setCurrentState(state);
 		return anthill;
 	}
 
@@ -216,18 +224,16 @@ public class World implements IMarkableWorld<Double, Coords, Ant> {
 		return anthills.toArray(new Anthill[0]);
 	}
 
-	public Double[][] getWaveField() {
-		Double[][] field = new Double[getWidth()][getHeight()];
-		for (ICell<Double> cell : waveField.getSpace().getAllCells()) {
+	public Marker[][] getWaveField() {
+		Marker[][] field = new Marker[getWidth()][getHeight()];
+		for (ICell<Marker> cell : waveField.getSpace().getAllCells()) {
 			int[] coords = cell.getCoords().getAll();
 			field[coords[0]][coords[1]] = cell.getCurrentState();
 		}
 		return field;
 	}
 
-	public Double getWaveAt(Coords position) {
-		return waveField.getSpace().getOrigin()
-				.getRelativeCell(position.getX(), position.getY())
-				.getCurrentState();
+	public Marker getWaveAt(Coords position) {
+		return getWaveCellAt(position).getCurrentState();
 	}
 }

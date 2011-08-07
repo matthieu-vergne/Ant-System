@@ -106,7 +106,7 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 	private Coords[] filterTooFarPositions(Coords[] positions) {
 		Set<Coords> managedPositions = new HashSet<Coords>();
 		for (Coords position : positions) {
-			if (getWorld().getWaveAt(position) > WAVE_SENSIBILITY) {
+			if (getWorld().getWaveAt(position).getMark(Anthill.WAVE_ID) > WAVE_SENSIBILITY) {
 				managedPositions.add(position);
 			}
 		}
@@ -143,8 +143,8 @@ public class Ant implements IAnt<Double, Coords, World, Anthill> {
 		Arrays.sort(positions, new Comparator<Coords>() {
 			@Override
 			public int compare(Coords c1, Coords c2) {
-				Double w1 = getWorld().getWaveAt(c1);
-				Double w2 = getWorld().getWaveAt(c2);
+				Double w1 = getWorld().getWaveAt(c1).getMark(Anthill.WAVE_ID);
+				Double w2 = getWorld().getWaveAt(c2).getMark(Anthill.WAVE_ID);
 				return w2.compareTo(w1);
 			}
 		});
